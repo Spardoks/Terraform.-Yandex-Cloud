@@ -1,4 +1,4 @@
-#cloud vars
+# cloud vars
 
 variable "cloud_id" {
   type        = string
@@ -28,10 +28,10 @@ variable "vpc_name" {
 }
 
 
-#ssh vars
+# ssh vars
 
-variable "vms_ssh_public_root_key" {
-  type        = string
-  default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQLavCUlHhkajt2QzOAokbIZZRKg7GptDl1sZ+5RXMo"
-  description = "ssh-keygen -t ed25519"
-}
+# variable "vms_ssh_public_root_key" {
+#   type        = string
+#   default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQLavCUlHhkajt2QzOAokbIZZRKg7GptDl1sZ+5RXMo"
+#   description = "ssh-keygen -t ed25519"
+# }

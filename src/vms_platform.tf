@@ -1,4 +1,4 @@
-#vm vars
+# vm vars
 
 ## vm_web
 
@@ -17,20 +17,20 @@ variable "vm_web_platform_id" {
   default = "standard-v1"
 }
 
-variable "vm_web_cores" {
-  type    = number
-  default = 2
-}
+# variable "vm_web_cores" {
+#   type    = number
+#   default = 2
+# }
 
-variable "vm_web_memory" {
-  type    = number
-  default = 1
-}
+# variable "vm_web_memory" {
+#   type    = number
+#   default = 1
+# }
 
-variable "vm_web_core_fraction" {
-  type    = number
-  default = 5
-}
+# variable "vm_web_core_fraction" {
+#   type    = number
+#   default = 5
+# }
 
 variable "vm_web_preemptible" {
   type    = bool
@@ -65,20 +65,20 @@ variable "vm_db_platform_id" {
   default = "standard-v1"
 }
 
-variable "vm_db_cores" {
-  type    = number
-  default = 2
-}
+# variable "vm_db_cores" {
+#   type    = number
+#   default = 2
+# }
 
-variable "vm_db_memory" {
-  type    = number
-  default = 2
-}
+# variable "vm_db_memory" {
+#   type    = number
+#   default = 2
+# }
 
-variable "vm_db_core_fraction" {
-  type    = number
-  default = 20
-}
+# variable "vm_db_core_fraction" {
+#   type    = number
+#   default = 20
+# }
 
 variable "vm_db_preemptible" {
   type    = bool
@@ -93,4 +93,38 @@ variable "vm_db_nat" {
 variable "vm_db_serial_port_enable" {
   type    = number
   default = 1
+}
+
+
+# vm_resources
+
+variable "vms_resources" {
+  type = map(object({
+    cores = number
+    memory = number
+    core_fraction = number
+  }))
+  default = {
+    web = {
+      cores = 2
+      memory = 1
+      core_fraction = 5
+    },
+    db = {
+      cores = 2
+      memory = 2
+      core_fraction = 20
+    }
+  }
+}
+
+
+# vm_metadata
+
+variable "vm_metadata" {
+  type = map(any)
+  default = {
+    serial-port-enable = 1
+    ssh-keys = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQLavCUlHhkajt2QzOAokbIZZRKg7GptDl1sZ+5RXMo"
+  }
 }

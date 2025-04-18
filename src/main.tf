@@ -26,14 +26,16 @@ data "yandex_compute_image" "ubuntu" {
 
 # vms
 
+## vm1
+
 resource "yandex_compute_instance" "platform" {
   name        = local.vm_names.web
   platform_id = var.vm_web_platform_id
 
   resources {
-    cores         = var.vm_web_cores
-    memory        = var.vm_web_memory
-    core_fraction = var.vm_web_core_fraction
+    cores         = var.vms_resources.web.cores
+    memory        = var.vms_resources.web.memory
+    core_fraction = var.vms_resources.web.core_fraction
   }
 
   boot_disk {
@@ -51,11 +53,14 @@ resource "yandex_compute_instance" "platform" {
     nat       = var.vm_web_nat
   }
 
-  metadata = {
-    serial-port-enable = var.vm_web_serial_port_enable
-    ssh-keys           = "ubuntu:${var.vms_ssh_public_root_key}"
-  }
+  # metadata = {
+  #   serial-port-enable = var.vm_web_serial_port_enable
+  #   ssh-keys           = "ubuntu:${var.vms_ssh_public_root_key}"
+  # }
+  metadata = var.vm_metadata
 }
+
+## vm2
 
 resource "yandex_compute_instance" "platform-db" {
   name        = local.vm_names.db
@@ -63,9 +68,9 @@ resource "yandex_compute_instance" "platform-db" {
   zone = "ru-central1-b"
 
   resources {
-    cores         = var.vm_db_cores
-    memory        = var.vm_db_memory
-    core_fraction = var.vm_db_core_fraction
+    cores         = var.vms_resources.db.cores
+    memory        = var.vms_resources.db.memory
+    core_fraction = var.vms_resources.db.core_fraction
   }
 
   boot_disk {
@@ -83,8 +88,9 @@ resource "yandex_compute_instance" "platform-db" {
     nat       = var.vm_db_nat
   }
 
-  metadata = {
-    serial-port-enable = var.vm_db_serial_port_enable
-    ssh-keys           = "ubuntu:${var.vms_ssh_public_root_key}"
-  }
+  # metadata = {
+  #   serial-port-enable = var.vm_db_serial_port_enable
+  #   ssh-keys           = "ubuntu:${var.vms_ssh_public_root_key}"
+  # }
+  metadata = var.vm_metadata
 }

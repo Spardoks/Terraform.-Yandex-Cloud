@@ -441,9 +441,70 @@ https://github.com/netology-code/ter-homeworks/blob/main/02/hw-02.md
 
 ### Решение 6
 
-...
+1. Добавляем в `vms_platform.tf` данные сложного объекта c описанием ресурсов и комментируем в этом же файле неиспользуемые переменные при использовании в `main.tf` данного объекта
+    ```
+    # mv_resources
 
+    variable "vms_resources" {
+    type = map(object({
+        cores = number
+        memory = number
+        core_fraction = number
+    }))
+    default = {
+        web = {
+        cores = 2
+        memory = 1
+        core_fraction = 5
+        },
+        db = {
+        cores = 2
+        memory = 2
+        core_fraction = 20
+        }
+    }
+    }
+    ```
+2. Добавляем в `vms_platform.tf` общие метаданные и комментируем неиспользуемые переменные при использовании в `main.tf` данного объекта (в этом файлев и в файле `variables.tf` в секции `# ssh vars`)
+    ```
+    # vm_metadata
 
+    variable "vm_metadata" {
+    type = map(any)
+    default = {
+        serial-port-enable = 1
+        ssh-keys = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQLavCUlHhkajt2QzOAokbIZZRKg7GptDl1sZ+5RXMo"
+    }
+    }
+    ```
+3. Делаем замены в `main.tf`
+    ```
+    resource "yandex_compute_instance" "platform" {
+        ...
+        resources {
+            cores         = var.vms_resources.web.cores
+            memory        = var.vms_resources.web.memory
+            core_fraction = var.vms_resources.web.core_fraction
+        }
+        ...
+        metadata = var.vm_metadata
+        ...
+    }
+
+    resource "yandex_compute_instance" "platform-db" {
+        ...
+        resources {
+            cores         = var.vms_resources.db.cores
+            memory        = var.vms_resources.db.memory
+            core_fraction = var.vms_resources.db.core_fraction
+        }
+        ...
+        metadata = var.vm_metadata
+        ...
+    }
+    ```
+4. Проверяем, что изменений нет
+    ![no_changes](./screens/no_changes.png)
 ------
 
 ## Дополнительное задание (со звёздочкой*)
@@ -501,7 +562,8 @@ test = [
 
 Используя инструкцию https://cloud.yandex.ru/ru/docs/vpc/operations/create-nat-gateway#tf_1, настройте для ваших ВМ nat_gateway. Для проверки уберите внешний IP адрес (nat=false) у ваших ВМ и проверьте доступ в интернет с ВМ, подключившись к ней через serial console. Для подключения предварительно через ssh измените пароль пользователя: ```sudo passwd ubuntu```
 
-### Правила приёма работыДля подключения предварительно через ssh измените пароль пользователя: sudo passwd ubuntu
+### Правила приёма работы
+Для подключения предварительно через ssh измените пароль пользователя: sudo passwd ubuntu  
 В качестве результата прикрепите ссылку на MD файл с описанием выполненой работы в вашем репозитории. Так же в репозитории должен присутсвовать ваш финальный код проекта.
 
 **Важно. Удалите все созданные ресурсы**.
