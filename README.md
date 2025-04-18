@@ -365,8 +365,43 @@ https://github.com/netology-code/ter-homeworks/blob/main/02/hw-02.md
 
 ### Решение 5
 
-...
+1. Добавляем в `locals.tf` информацию
+    ```
+    variable "vm_env" {
+    type    = string
+    default = "netology-develop-platform"
+    }
 
+    variable "vm_web" {
+    type    = string
+    default = "web"
+    }
+
+    variable "vm_db" {
+    type    = string
+    default = "db"
+    }
+
+    locals {
+    vm_names = {
+        web = "${var.vm_env}-${var.vm_web}"
+        db = "${var.vm_env}-${var.vm_db}"
+    }
+    }
+    ```
+2. Правим `main.tf` и указываем для yandex_compute_instance имена следующим образом
+    ```
+    resource "yandex_compute_instance" "platform" {
+    name        = local.vm_names.web
+    ...
+    }
+    resource "yandex_compute_instance" "platform-db" {
+    name        = local.vm_names.db
+    ...
+    }
+    ```
+3. Применяем изменения
+    ![loclas_ready](./screens/loclas_ready.png)
 
 ### Задание 6
 

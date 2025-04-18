@@ -27,7 +27,7 @@ data "yandex_compute_image" "ubuntu" {
 # vms
 
 resource "yandex_compute_instance" "platform" {
-  name        = var.vm_web_name
+  name        = local.vm_names.web
   platform_id = var.vm_web_platform_id
 
   resources {
@@ -58,7 +58,7 @@ resource "yandex_compute_instance" "platform" {
 }
 
 resource "yandex_compute_instance" "platform-db" {
-  name        = var.vm_db_name
+  name        = local.vm_names.db
   platform_id = var.vm_db_platform_id
   zone = "ru-central1-b"
 
