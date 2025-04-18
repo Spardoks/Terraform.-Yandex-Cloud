@@ -134,7 +134,7 @@ https://github.com/netology-code/ter-homeworks/blob/main/02/hw-02.md
     }
     ```
 
-2. Правим `main.tf'
+2. Правим `main.tf`
     ```
     data "yandex_compute_image" "ubuntu" {
     family = var.vm_web_image_family
@@ -182,8 +182,147 @@ https://github.com/netology-code/ter-homeworks/blob/main/02/hw-02.md
 
 ### Решение 3
 
-...
+1. Создаём `vms_platform.tf`, переносим туда данные `vm-web` и указываем данные `vm-db`
+    ```
+    #vm vars
 
+    ## vm_web
+
+    variable "vm_web_image_family" {
+    type    = string
+    default = "ubuntu-2004-lts"
+    }
+
+    variable "vm_web_name" {
+    type    = string
+    default = "netology-develop-platform-web"
+    }
+
+    variable "vm_web_platform_id" {
+    type    = string
+    default = "standard-v1"
+    }
+
+    variable "vm_web_cores" {
+    type    = number
+    default = 2
+    }
+
+    variable "vm_web_memory" {
+    type    = number
+    default = 1
+    }
+
+    variable "vm_web_core_fraction" {
+    type    = number
+    default = 5
+    }
+
+    variable "vm_web_preemptible" {
+    type    = bool
+    default = true
+    }
+
+    variable "vm_web_nat" {
+    type    = bool
+    default = true
+    }
+
+    variable "vm_web_serial_port_enable" {
+    type    = number
+    default = 1
+    }
+
+
+    ## vm_db
+
+    variable "vm_db_image_family" {
+    type    = string
+    default = "ubuntu-2004-lts"
+    }
+
+    variable "vm_db_name" {
+    type    = string
+    default = "netology-develop-platform-db"
+    }
+
+    variable "vm_db_platform_id" {
+    type    = string
+    default = "standard-v1"
+    }
+
+    variable "vm_db_cores" {
+    type    = number
+    default = 2
+    }
+
+    variable "vm_db_memory" {
+    type    = number
+    default = 2
+    }
+
+    variable "vm_db_core_fraction" {
+    type    = number
+    default = 20
+    }
+
+    variable "vm_db_preemptible" {
+    type    = bool
+    default = true
+    }
+
+    variable "vm_db_nat" {
+    type    = bool
+    default = true
+    }
+
+    variable "vm_db_serial_port_enable" {
+    type    = number
+    default = 1
+    }
+    ```
+2. В `main.tf` создаём новый ресурс, не забыв про "ru-central1-b"
+    ```
+    resource "yandex_vpc_subnet" "develop-db" {
+        name           = "develop-db"
+        zone           = "ru-central1-b"
+        network_id     = yandex_vpc_network.develop.id
+        v4_cidr_blocks = ["10.0.2.0/24"]
+    }
+    resource "yandex_compute_instance" "platform-db" {
+        name        = var.vm_db_name
+        platform_id = var.vm_db_platform_id
+        zone = "ru-central1-b"
+
+        resources {
+            cores         = var.vm_db_cores
+            memory        = var.vm_db_memory
+            core_fraction = var.vm_db_core_fraction
+        }
+
+        boot_disk {
+            initialize_params {
+            image_id = data.yandex_compute_image.ubuntu.image_id
+            }
+        }
+
+        scheduling_policy {
+            preemptible = var.vm_db_preemptible
+        }
+
+        network_interface {
+            subnet_id = yandex_vpc_subnet.develop.id
+            nat       = var.vm_db_nat
+        }
+
+        metadata = {
+            serial-port-enable = var.vm_db_serial_port_enable
+            ssh-keys           = "ubuntu:${var.vms_ssh_public_root_key}"
+        }
+    }
+    ```
+3. Применяем изменения `terraform apply -var 'cloud_id'=$YC_CLOUD_ID -var 'folder_id'=$YC_FOLDER_ID`
+    ![vm_db_created](./screens/vm_db_created.png)
 
 ### Задание 4
 
@@ -194,8 +333,29 @@ https://github.com/netology-code/ter-homeworks/blob/main/02/hw-02.md
 
 ### Решение 4
 
-...
-
+1. Создаём `outputs.tf` (https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/examples)
+    ```
+    output "vm_instances_info" {
+    value = {
+        for vm in [
+        {
+            name = yandex_compute_instance.platform.name
+            external_ip = yandex_compute_instance.platform.network_interface.0.nat_ip_address
+            fqdn = yandex_compute_instance.platform.fqdn
+        },
+        {
+            name = yandex_compute_instance.platform-db.name
+            external_ip = yandex_compute_instance.platform-db.network_interface.0.nat_ip_address
+            fqdn = yandex_compute_instance.platform-db.fqdn
+        }
+        ] :
+        vm.name => vm
+    }
+    description = "Информация о всех ВМ: имя, внешний IP и полное доменное имя"
+    }
+    ```
+2. Применяем изменения `terraform apply -var 'cloud_id'=$YC_CLOUD_ID -var 'folder_id'=$YC_FOLDER_ID`
+    ![outputs_ready](./screens/outputs_ready.png)
 
 ### Задание 5
 
